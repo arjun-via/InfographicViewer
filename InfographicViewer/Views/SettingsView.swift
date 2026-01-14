@@ -26,7 +26,7 @@ struct SettingsView: View {
                                 .foregroundColor(.textPrimary)
                         }
                         
-                        Text("Infographics are generated server-side using Claude Opus 4.5")
+                        Text("Infographics are generated server-side using GLM-4.6 via Cerebras")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                         
@@ -91,7 +91,7 @@ struct SettingsView: View {
                         Text("Pricing")
                             .font(.subheadline)
                             .foregroundColor(.textPrimary)
-                        Text("~$2-5 per repository analysis (Claude Opus 4.5)")
+                        Text("~$0.02 per repository analysis (GLM-4.6 via Cerebras)")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                     }
