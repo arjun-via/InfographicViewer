@@ -1,13 +1,11 @@
 import SwiftUI
 
-/// Settings view for configuring the OpenRouter API key
+/// Settings view - simplified since backend handles API keys
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var apiKey: String = ""
-    @State private var showAPIKey = false
     @State private var testStatus: TestStatus = .idle
     
-    enum TestStatus {
+    enum TestStatus: Equatable {
         case idle
         case testing
         case success
@@ -17,74 +15,29 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // API Key Section
+                // Backend Status Section
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("OpenRouter API Key")
-                            .font(.headline)
-                            .foregroundColor(.textPrimary)
+                        HStack {
+                            Image(systemName: "server.rack")
+                                .foregroundColor(.accentPrimary)
+                            Text("Railway Backend")
+                                .font(.headline)
+                                .foregroundColor(.textPrimary)
+                        }
                         
-                        Text("Required to generate infographics from GitHub URLs")
+                        Text("Infographics are generated server-side using Claude Opus 4.5")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                         
-                        HStack {
-                            if showAPIKey {
-                                TextField("sk-or-...", text: $apiKey)
-                                    .textFieldStyle(.roundedBorder)
-                                    .autocapitalization(.none)
-                                    .disableAutocorrection(true)
-                            } else {
-                                SecureField("sk-or-...", text: $apiKey)
-                                    .textFieldStyle(.roundedBorder)
-                            }
-                            
-                            Button(action: { showAPIKey.toggle() }) {
-                                Image(systemName: showAPIKey ? "eye.slash" : "eye")
-                                    .foregroundColor(.textSecondary)
-                            }
-                        }
-                        
-                        // Save button
-                        Button(action: saveAPIKey) {
-                            HStack {
-                                Image(systemName: "checkmark.circle")
-                                Text("Save Key")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.accentPrimary)
-                        .disabled(apiKey.isEmpty)
+                        Text(InfographicGenerator.currentBackendURL)
+                            .font(.caption2)
+                            .foregroundColor(.textTertiary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
                     }
                 } header: {
-                    Text("API Configuration")
-                }
-                
-                // Get API Key Section
-                Section {
-                    Link(destination: URL(string: "https://openrouter.ai/keys")!) {
-                        HStack {
-                            Image(systemName: "key.fill")
-                                .foregroundColor(.accentPrimary)
-                            Text("Get OpenRouter API Key")
-                                .foregroundColor(.accentPrimary)
-                            Spacer()
-                            Image(systemName: "arrow.up.right.square")
-                                .foregroundColor(.textSecondary)
-                        }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Pricing")
-                            .font(.subheadline)
-                            .foregroundColor(.textPrimary)
-                        Text("Uses Gemini 2.0 Flash (~$0.10 per repo analysis)")
-                            .font(.caption)
-                            .foregroundColor(.textSecondary)
-                    }
-                } header: {
-                    Text("OpenRouter")
+                    Text("Backend")
                 }
                 
                 // Test Connection Section
@@ -94,7 +47,7 @@ struct SettingsView: View {
                             switch testStatus {
                             case .idle:
                                 Image(systemName: "network")
-                                Text("Test Connection")
+                                Text("Test Backend Connection")
                             case .testing:
                                 ProgressView()
                                     .scaleEffect(0.8)
@@ -102,7 +55,7 @@ struct SettingsView: View {
                             case .success:
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.success)
-                                Text("Connection OK!")
+                                Text("Backend Online!")
                             case .failed(let error):
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(.error)
@@ -111,7 +64,7 @@ struct SettingsView: View {
                             Spacer()
                         }
                     }
-                    .disabled(apiKey.isEmpty || testStatus == .testing)
+                    .disabled(testStatus == .testing)
                 }
                 
                 // About Section
@@ -121,14 +74,29 @@ struct SettingsView: View {
                             .font(.headline)
                         
                         Text("1. Enter a GitHub repository URL")
-                        Text("2. The app calls OpenRouter's Gemini model")
-                        Text("3. Gemini analyzes the repository structure")
-                        Text("4. Returns a hierarchical JSON for visualization")
+                        Text("2. The app sends the URL to our Railway backend")
+                        Text("3. Backend calls Claude Opus 4.5 to analyze the repo")
+                        Text("4. Returns a validated hierarchical JSON")
+                        Text("5. Navigate the infographic by tapping to drill down")
                     }
                     .font(.caption)
                     .foregroundColor(.textSecondary)
                 } header: {
                     Text("About")
+                }
+                
+                // Pricing Info
+                Section {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Pricing")
+                            .font(.subheadline)
+                            .foregroundColor(.textPrimary)
+                        Text("~$2-5 per repository analysis (Claude Opus 4.5)")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                } header: {
+                    Text("Cost")
                 }
             }
             .navigationTitle("Settings")
@@ -141,37 +109,41 @@ struct SettingsView: View {
                     .foregroundColor(.accentPrimary)
                 }
             }
-            .onAppear {
-                apiKey = InfographicGenerator.apiKey ?? ""
-            }
         }
     }
     
-    private func saveAPIKey() {
-        InfographicGenerator.apiKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-    
     private func testConnection() {
-        guard !apiKey.isEmpty else { return }
-        
         testStatus = .testing
-        saveAPIKey()
         
         Task {
             do {
-                // Simple test - just check if the API responds
-                let url = URL(string: "https://openrouter.ai/api/v1/models")!
-                var request = URLRequest(url: url)
-                request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                // Test the backend health endpoint
+                let healthURL = InfographicGenerator.currentBackendURL
+                    .replacingOccurrences(of: "/generate", with: "/health")
                 
-                let (_, response) = try await URLSession.shared.data(for: request)
+                guard let url = URL(string: healthURL) else {
+                    await MainActor.run {
+                        testStatus = .failed("Invalid URL")
+                    }
+                    return
+                }
+                
+                let (data, response) = try await URLSession.shared.data(from: url)
                 
                 if let httpResponse = response as? HTTPURLResponse {
                     await MainActor.run {
                         if httpResponse.statusCode == 200 {
-                            testStatus = .success
-                        } else if httpResponse.statusCode == 401 {
-                            testStatus = .failed("Invalid API key")
+                            // Check if API key is configured on backend
+                            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                               let apiKeyConfigured = json["api_key_configured"] as? Bool {
+                                if apiKeyConfigured {
+                                    testStatus = .success
+                                } else {
+                                    testStatus = .failed("Backend API key not configured")
+                                }
+                            } else {
+                                testStatus = .success
+                            }
                         } else {
                             testStatus = .failed("HTTP \(httpResponse.statusCode)")
                         }

@@ -1,53 +1,63 @@
 import Foundation
+import os
 
 /// Service for generating infographics from GitHub repositories
-/// Calls OpenRouter API directly (like repo2interactive.py) - no separate backend needed
+/// Calls the Railway backend which handles OpenRouter + validation
 enum InfographicGenerator {
     
     // MARK: - Configuration
     
-    /// OpenRouter API endpoint
-    private static let openRouterURL = "https://openrouter.ai/api/v1/chat/completions"
+    private static let logger = Logger(subsystem: "com.arjundivecha.InfographicViewer", category: "InfographicGenerator")
     
-    /// Model to use for analysis
-    private static let model = "google/gemini-2.0-flash-001"
+    /// Railway backend URL for infographic generation
+    /// Uses the same Railway deployment as Spoken Reality
+    private static let backendURL = "https://spoken-reality-production-9cd5.up.railway.app/api/infographic/generate"
     
-    /// UserDefaults key for API key
-    private static let apiKeyKey = "openrouter_api_key"
+    /// Model to use (passed to backend)
+    private static let model = "anthropic/claude-opus-4.5"
     
-    /// Get or set the OpenRouter API key
+    /// UserDefaults key for custom backend URL (optional override)
+    private static let backendURLKey = "infographic_backend_url"
+    
+    /// Get the backend URL (can be overridden in settings)
+    static var currentBackendURL: String {
+        UserDefaults.standard.string(forKey: backendURLKey) ?? backendURL
+    }
+    
+    /// Legacy API key property (kept for backward compatibility with Settings UI)
+    /// No longer needed since backend handles the API key
     static var apiKey: String? {
-        get { UserDefaults.standard.string(forKey: apiKeyKey) }
-        set { UserDefaults.standard.set(newValue, forKey: apiKeyKey) }
+        get { "backend-managed" }  // Always return non-nil so UI doesn't show "API key required"
+        set { }  // No-op
     }
     
     // MARK: - Errors
     
     enum GeneratorError: LocalizedError {
-        case noAPIKey
         case invalidURL
         case networkError(String)
         case invalidResponse
         case serverError(String)
         case parsingError(String)
         case rateLimited
+        case backendUnavailable
         
         var errorDescription: String? {
             switch self {
-            case .noAPIKey:
-                return "OpenRouter API key not set. Go to Settings to add your key."
             case .invalidURL:
                 return "Invalid GitHub URL. Use format: https://github.com/owner/repo"
             case .networkError(let message):
                 return "Network error: \(message)"
             case .invalidResponse:
-                return "Invalid response from API"
+                return "Invalid response from backend"
             case .serverError(let message):
-                return "API error: \(message)"
+                return "Backend error: \(message)"
             case .parsingError(let message):
                 return "Failed to parse response: \(message)"
             case .rateLimited:
                 return "Rate limited. Please wait a moment and try again."
+            case .backendUnavailable:
+                return "Backend service unavailable. Please try again later."
             }
         }
     }
@@ -55,232 +65,102 @@ enum InfographicGenerator {
     // MARK: - Generate from GitHub URL
     
     /// Generate an infographic from a GitHub repository URL
-    /// Calls OpenRouter API with Gemini to analyze the repository
+    /// Calls the Railway backend which handles OpenRouter + validation
     static func generate(from githubURL: String) async throws -> InteractiveInfographic {
-        // Check for API key
-        guard let key = apiKey, !key.isEmpty else {
-            throw GeneratorError.noAPIKey
-        }
+        logger.info("Generate start (repo=\(githubURL, privacy: .public), backend=\(currentBackendURL, privacy: .public))")
         
         // Validate URL
         guard githubURL.contains("github.com") else {
+            logger.error("Generate failed: invalid GitHub URL")
             throw GeneratorError.invalidURL
         }
         
-        // Build the prompt
-        let prompt = buildAnalysisPrompt(repoURL: githubURL)
+        // Call backend
+        let infographic = try await callBackend(repoURL: githubURL)
         
-        // Call OpenRouter
-        let jsonString = try await callOpenRouter(apiKey: key, prompt: prompt)
-        
-        // Parse the response
-        return try parseInfographicJSON(jsonString)
+        logger.info("Generate success (repo=\(infographic.repoName, privacy: .public))")
+        return infographic
     }
     
-    // MARK: - OpenRouter API Call
+    // MARK: - Backend API Call
     
-    private static func callOpenRouter(apiKey: String, prompt: String) async throws -> String {
-        guard let url = URL(string: openRouterURL) else {
-            throw GeneratorError.networkError("Invalid API URL")
+    private static func callBackend(repoURL: String) async throws -> InteractiveInfographic {
+        guard let url = URL(string: currentBackendURL) else {
+            throw GeneratorError.networkError("Invalid backend URL")
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("https://github.com/infographic-viewer", forHTTPHeaderField: "HTTP-Referer")
-        request.setValue("InfographicViewer", forHTTPHeaderField: "X-Title")
         request.timeoutInterval = 300 // 5 minutes for large repos
         
         let payload: [String: Any] = [
-            "model": model,
-            "messages": [
-                ["role": "user", "content": prompt]
-            ],
-            "temperature": 0.2,
-            "max_tokens": 32000
+            "repo_url": repoURL,
+            "model": model
         ]
         
         request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        logger.info("Backend request prepared (bytes=\(request.httpBody?.count ?? 0, privacy: .public))")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
+            logger.error("Backend call failed: response not HTTPURLResponse")
             throw GeneratorError.invalidResponse
         }
+        
+        logger.info("Backend HTTP status \(httpResponse.statusCode, privacy: .public) (bytes=\(data.count, privacy: .public))")
         
         // Handle rate limiting
         if httpResponse.statusCode == 429 {
+            logger.error("Backend rate limited (429)")
             throw GeneratorError.rateLimited
         }
         
-        // Handle other errors
-        guard httpResponse.statusCode == 200 else {
-            if let errorJSON = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let error = errorJSON["error"] as? [String: Any],
-               let message = error["message"] as? String {
-                throw GeneratorError.serverError(message)
-            }
-            throw GeneratorError.serverError("HTTP \(httpResponse.statusCode)")
+        // Handle service unavailable
+        if httpResponse.statusCode == 503 || httpResponse.statusCode == 502 {
+            logger.error("Backend unavailable (\(httpResponse.statusCode))")
+            throw GeneratorError.backendUnavailable
         }
         
-        // Parse OpenRouter response
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let choices = json["choices"] as? [[String: Any]],
-              let firstChoice = choices.first,
-              let message = firstChoice["message"] as? [String: Any],
-              let content = message["content"] as? String else {
+        // Parse response
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            logger.error("Backend response parsing failed: not valid JSON")
             throw GeneratorError.invalidResponse
         }
         
-        return content
-    }
-    
-    // MARK: - JSON Parsing
-    
-    private static func parseInfographicJSON(_ raw: String) throws -> InteractiveInfographic {
-        // Extract JSON from potential markdown code blocks
-        let jsonString = extractJSON(from: raw)
-        
-        guard let data = jsonString.data(using: .utf8) else {
-            throw GeneratorError.parsingError("Invalid UTF-8 string")
+        // Check for error in response
+        if let success = json["success"] as? Bool, !success {
+            let errorMessage = json["error"] as? String ?? "Unknown error"
+            logger.error("Backend returned error: \(errorMessage, privacy: .public)")
+            throw GeneratorError.serverError(errorMessage)
         }
         
+        // Extract the infographic data
+        guard let infographicData = json["data"] as? [String: Any] else {
+            logger.error("Backend response missing 'data' field")
+            throw GeneratorError.invalidResponse
+        }
+        
+        // Convert back to Data for decoding
+        let infographicJSON = try JSONSerialization.data(withJSONObject: infographicData)
+        
+        // Decode
         do {
             let decoder = JSONDecoder()
-            return try decoder.decode(InteractiveInfographic.self, from: data)
+            let infographic = try decoder.decode(InteractiveInfographic.self, from: infographicJSON)
+            logger.info("Infographic decoded successfully")
+            return infographic
         } catch {
+            logger.error("Infographic decode failed: \(error.localizedDescription, privacy: .public)")
             throw GeneratorError.parsingError(error.localizedDescription)
         }
-    }
-    
-    private static func extractJSON(from raw: String) -> String {
-        var text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // Remove markdown code blocks
-        if text.contains("```") {
-            // Find JSON within code blocks
-            if let jsonStart = text.range(of: "{"),
-               let jsonEnd = text.range(of: "}", options: .backwards) {
-                text = String(text[jsonStart.lowerBound...jsonEnd.upperBound])
-            }
-        }
-        
-        // Find raw JSON
-        if let jsonStart = text.firstIndex(of: "{"),
-           let jsonEnd = text.lastIndex(of: "}") {
-            return String(text[jsonStart...jsonEnd])
-        }
-        
-        return text
-    }
-    
-    // MARK: - Prompt Builder
-    
-    private static func buildAnalysisPrompt(repoURL: String) -> String {
-        """
-        You are a Principal Systems Architect with expertise in code analysis. Your task is to analyze the GitHub repository at:
-        \(repoURL)
-
-        You must produce a HIERARCHICAL JSON structure that an iOS app can use for interactive drill-down navigation.
-        The user will tap on elements to zoom in and see more detail, recursively, until they reach the actual code.
-
-        ================================================================================
-        ANALYSIS INSTRUCTIONS
-        ================================================================================
-
-        1. **FETCH THE ENTIRE REPOSITORY**
-           - Read all source files from the repository
-           - Understand the project structure and dependencies
-           - Identify the programming language(s) used
-
-        2. **IDENTIFY ENTRY POINTS**
-           - Find main entry points (main.py, app.py, index.js, __main__.py, etc.)
-           - Identify CLI entry points, web routes, or event handlers
-           - Note which files are the "starting points" of execution
-
-        3. **TRACE EXECUTION FLOW**
-           - Follow the code execution path from entry points
-           - Map out which functions call which other functions
-           - Identify data transformations and I/O operations
-
-        4. **EXTRACT RELEVANT CODE**
-           - For each function/class you identify, extract the actual source code
-           - Include ONLY the relevant functions, not entire files
-           - Preserve proper indentation and formatting
-
-        5. **BUILD THE HIERARCHY**
-           Create a tree with these levels (use as many as appropriate):
-           
-           Level 0: REPO (root)
-              └── Level 1: PHASE (pipeline phases like Ingestion, Processing, Output)
-                     └── Level 2: STEP (specific processing steps)
-                            └── Level 3: FILE (source files involved)
-                                   └── Level 4: FUNCTION (functions/classes)
-                                          └── Level 5: CODE_BLOCK (actual code)
-
-        ================================================================================
-        JSON SCHEMA
-        ================================================================================
-
-        Your output MUST be a single JSON object with this EXACT structure:
-
-        {
-          "version": "2.0",
-          "schema": "interactive-infographic",
-          "repo_url": "\(repoURL)",
-          "repo_name": "short-name",
-          "repo_summary": "1-3 sentence description",
-          "pipeline_overview": "1-2 sentence pipeline summary",
-          "generated_at": "2026-01-14T00:00:00Z",
-          "root": {
-            "id": "root",
-            "type": "repo",
-            "label": "Repository Name",
-            "description": "Short description",
-            "visual_hint": {
-              "icon": "folder.fill",
-              "color": "#58A6FF"
-            },
-            "children": [
-              // Array of phase nodes
-            ]
-          }
-        }
-
-        ================================================================================
-        NODE TYPES
-        ================================================================================
-
-        Each node MUST have: id, type, label, description, visual_hint, children
-
-        Node types: repo, phase, step, file, function, code_block
-
-        For "phase" nodes, add phase_metadata with phase_id and phase_purpose
-        For "step" nodes, add step_metadata with source_nodes and target_nodes
-        For "file" nodes, add file_metadata with file_path, language, github_url
-        For "function" nodes, add function_metadata with signature, line_start, line_end
-        For "code_block" nodes, add code_metadata with actual code string and annotations
-
-        ================================================================================
-        CRITICAL RULES
-        ================================================================================
-
-        1. Extract REAL code from the repository - do NOT make up code
-        2. Include only functions in the main execution flow
-        3. Generate correct GitHub URLs with line numbers: .../blob/main/path.py#L10-L50
-        4. Use valid SF Symbol names: terminal, doc.text, function, folder.fill, play.fill
-        5. Leaf nodes (code_block) MUST have empty children array
-        6. Respond with VALID JSON ONLY - no markdown, no explanation
-
-        ================================================================================
-        """
     }
     
     // MARK: - Local Generation (fallback)
     
     /// Generate a simple infographic from local file contents
-    /// This is a fallback for testing without API
+    /// This is a fallback for testing without backend
     static func generateLocal(
         projectName: String,
         files: [(path: String, content: String)]

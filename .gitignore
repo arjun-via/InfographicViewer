@@ -64,3 +64,4 @@ fastlane/test_output
 # Archives
 *.ipa
 *.xcarchive
+.env

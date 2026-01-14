@@ -226,22 +226,10 @@ struct ContentView: View {
             }
             .disabled(githubURL.isEmpty || isLoading)
             
-            // API key status
-            if InfographicGenerator.apiKey == nil || InfographicGenerator.apiKey?.isEmpty == true {
-                Button(action: { showSettings = true }) {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.warning)
-                        Text("API key required - tap to configure")
-                            .foregroundColor(.warning)
-                    }
-                    .font(.caption)
-                }
-            } else {
-                Text("Using OpenRouter with Gemini 2.0 Flash")
-                    .font(.caption)
-                    .foregroundColor(.textTertiary)
-            }
+            // Backend status
+            Text("Powered by Claude Opus 4.5 via Railway")
+                .font(.caption)
+                .foregroundColor(.textTertiary)
             
             if let infographic = infographic {
                 loadedInfoCard(infographic)
