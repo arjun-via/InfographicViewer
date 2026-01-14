@@ -12,6 +12,7 @@
 		3AFB7C0DD6B44C62A29CF62F /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6D07055D8845B383EDFB2C /* Colors.swift */; };
 		4DFB686B39604DCBB6A4B6EA /* California-Law-Chatbot_interactive.json in Resources */ = {isa = PBXBuildFile; fileRef = ED00AAF903504F8F87C4BC82 /* California-Law-Chatbot_interactive.json */; };
 		5739615FDC864285B8F8F556 /* InfographicGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E7958983A1427085DED070 /* InfographicGenerator.swift */; };
+		ASSETS0001BUILDFILE00001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ASSETS0001FILEREF00001 /* Assets.xcassets */; };
 		B2E2907DD8CB4BB1A02365FA /* InfographicModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86C88E473044A01B317C092 /* InfographicModels.swift */; };
 		D923F857825C475E88AFE025 /* InfographicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A70E8FF1B943DFA3B69207 /* InfographicView.swift */; };
 		E576642A4DB940AFBA99E813 /* InfographicViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3CB3FDA55C4AAE9CDEB6A6 /* InfographicViewerApp.swift */; };
@@ -25,6 +26,7 @@
 		887E10FF8D224A2AB7706963 /* cli_interactive.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = cli_interactive.json; sourceTree = "<group>"; };
 		8E6D07055D8845B383EDFB2C /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		91A70E8FF1B943DFA3B69207 /* InfographicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfographicView.swift; sourceTree = "<group>"; };
+		ASSETS0001FILEREF00001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B38C7F47254347F2957C8020 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BE3CB3FDA55C4AAE9CDEB6A6 /* InfographicViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfographicViewerApp.swift; sourceTree = "<group>"; };
 		E86C88E473044A01B317C092 /* InfographicModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfographicModels.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 				0A0FA741BA1C45B689B24432 /* Services */,
 				233460606CE04E77A27471D4 /* Theme */,
 				FCCDCDE68EA5484CBBA40987 /* Resources */,
+				ASSETS0001FILEREF00001 /* Assets.xcassets */,
 			);
 			path = InfographicViewer;
 			sourceTree = "<group>";
@@ -201,6 +204,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ASSETS0001BUILDFILE00001 /* Assets.xcassets in Resources */,
 				4DFB686B39604DCBB6A4B6EA /* California-Law-Chatbot_interactive.json in Resources */,
 				0DB2CBAC312946498F68A099 /* cli_interactive.json in Resources */,
 			);
