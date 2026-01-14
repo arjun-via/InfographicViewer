@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var showInfographic = false
     @State private var githubURL = ""
     @State private var selectedTab = 0
+    @State private var showSettings = false
     
     var body: some View {
         NavigationStack {
@@ -53,6 +54,17 @@ struct ContentView: View {
             }
             .navigationTitle("Infographic Viewer")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showSettings = true }) {
+                        Image(systemName: "gearshape")
+                            .foregroundColor(.accentPrimary)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
         .fileImporter(
             isPresented: $showFilePicker,
@@ -214,9 +226,22 @@ struct ContentView: View {
             }
             .disabled(githubURL.isEmpty || isLoading)
             
-            Text("Note: This requires the backend API to be running")
-                .font(.caption)
-                .foregroundColor(.textTertiary)
+            // API key status
+            if InfographicGenerator.apiKey == nil || InfographicGenerator.apiKey?.isEmpty == true {
+                Button(action: { showSettings = true }) {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.warning)
+                        Text("API key required - tap to configure")
+                            .foregroundColor(.warning)
+                    }
+                    .font(.caption)
+                }
+            } else {
+                Text("Using OpenRouter with Gemini 2.0 Flash")
+                    .font(.caption)
+                    .foregroundColor(.textTertiary)
+            }
             
             if let infographic = infographic {
                 loadedInfoCard(infographic)

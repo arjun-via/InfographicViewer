@@ -8,7 +8,9 @@ This is a standalone test app for validating the mobile visualization approach d
 
 - **Load Sample Infographics** - Test with pre-generated JSON files
 - **Load from File** - Import your own JSON files
-- **Generate from GitHub** - Enter a GitHub URL to generate an infographic (requires backend)
+- **Generate from GitHub** - Enter a GitHub URL to generate an infographic
+  - Uses OpenRouter API with Gemini 2.0 Flash
+  - No separate backend needed!
 - **Pinch-to-Zoom** - (Coming soon) Smooth zoom like Working Copy
 - **Search** - (Coming soon) Find files and functions in the visualization
 
@@ -27,32 +29,41 @@ REPO
 
 ## Setup
 
-### Option 1: Quick Start (Samples Only)
+### Step 1: Create Xcode Project
 
-1. Open Xcode
-2. Create a new iOS App project named "InfographicViewer"
-3. Delete the default ContentView.swift
-4. Drag all files from `InfographicViewer/` folder into your project
-5. Add the JSON files from `Resources/` to your project (check "Copy items if needed")
-6. Build and run
+1. Open Xcode → File → New → Project
+2. Choose iOS → App
+3. Settings:
+   - Product Name: `InfographicViewer`
+   - Interface: **SwiftUI**
+   - Language: **Swift**
+4. Save in: `/Users/arjundivecha/Dropbox/AAA Backup/A Working/InfographicViewer/`
+5. Delete the auto-generated `ContentView.swift` and `InfographicViewerApp.swift`
+6. Drag the `InfographicViewer/` subfolder into Xcode (with all Swift files)
+7. Add JSON files from `Resources/` to the project
+8. Build and run!
 
-### Option 2: With Backend (Generate from GitHub)
+### Step 2: Configure API Key (for GitHub generation)
 
-1. Set up the backend API (see below)
-2. Update `InfographicGenerator.apiEndpoint` to your backend URL
-3. Build and run
+1. Get an API key from [OpenRouter](https://openrouter.ai/keys)
+2. In the app, tap the ⚙️ Settings button
+3. Enter your OpenRouter API key
+4. Tap "Test Connection" to verify
 
-## Backend API
+**Cost**: ~$0.10 per repository analysis (using Gemini 2.0 Flash)
 
-To generate infographics from GitHub URLs, you need a backend that:
+## How GitHub Generation Works
 
-1. Accepts POST requests with `{ "repo_url": "https://github.com/owner/repo" }`
-2. Analyzes the repository using AI (Claude/Gemini)
-3. Returns the hierarchical JSON in the `InteractiveInfographic` schema
+The app calls OpenRouter's API directly (no backend needed):
 
-See the [repo2interactive.py](../Spoken%20Reality/SpokenRealityApp/Tools/repo2interactive/) script for the generation logic.
+1. You enter a GitHub URL
+2. App sends the URL to OpenRouter with Gemini 2.0 Flash
+3. Gemini fetches and analyzes the repository
+4. Returns hierarchical JSON for visualization
 
-### Expected API Response
+This is the same approach used by [repo2interactive.py](../Spoken%20Reality/SpokenRealityApp/Tools/repo2interactive/).
+
+### JSON Schema
 
 ```json
 {
