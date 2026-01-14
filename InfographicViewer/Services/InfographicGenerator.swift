@@ -14,7 +14,7 @@ enum InfographicGenerator {
     private static let backendURL = "https://spoken-reality-production-9cd5.up.railway.app/api/infographic/generate"
     
     /// Model to use (passed to backend)
-    private static let model = "z-ai/glm-4.6"
+    private static let model = "zai-glm-4.7"
     
     /// UserDefaults key for custom backend URL (optional override)
     private static let backendURLKey = "infographic_backend_url"

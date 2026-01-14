@@ -26,7 +26,7 @@ struct SettingsView: View {
                                 .foregroundColor(.textPrimary)
                         }
                         
-                        Text("Infographics are generated server-side using GLM-4.6 via Cerebras")
+                        Text("Infographics are generated server-side using GLM-4.7 via Cerebras")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                         
@@ -91,7 +91,7 @@ struct SettingsView: View {
                         Text("Pricing")
                             .font(.subheadline)
                             .foregroundColor(.textPrimary)
-                        Text("~$0.02 per repository analysis (GLM-4.6 via Cerebras)")
+                        Text("Free tier available (GLM-4.7 via Cerebras)")
                             .font(.caption)
                             .foregroundColor(.textSecondary)
                     }

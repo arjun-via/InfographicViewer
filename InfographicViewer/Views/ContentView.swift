@@ -227,7 +227,7 @@ struct ContentView: View {
             .disabled(githubURL.isEmpty || isLoading)
             
             // Backend status
-            Text("Powered by GLM-4.6 via Cerebras")
+            Text("Powered by GLM-4.7 via Cerebras")
                 .font(.caption)
                 .foregroundColor(.textTertiary)
             
