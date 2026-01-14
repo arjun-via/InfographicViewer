@@ -1,0 +1,409 @@
+{
+  "version": "2.0",
+  "schema": "interactive-infographic",
+  "repo_url": "https://github.com/httpie/cli",
+  "repo_name": "HTTPie",
+  "repo_summary": "A user-friendly command-line HTTP client for the API era, featuring JSON support, syntax highlighting, and persistent sessions.",
+  "pipeline_overview": "HTTPie processes CLI arguments into an HTTP request, executes it via Requests, and then formats and colorizes the response for terminal display.",
+  "generated_at": "2024-05-20T00:00:00Z",
+  "root": {
+    "id": "root",
+    "type": "repo",
+    "label": "HTTPie CLI",
+    "description": "Modern command-line HTTP client",
+    "visual_hint": {
+      "icon": "terminal",
+      "color": "#000000"
+    },
+    "children": [
+      {
+        "id": "phase-1",
+        "type": "phase",
+        "label": "Ingestion",
+        "description": "CLI argument parsing and environment loading",
+        "visual_hint": {
+          "icon": "arrow.down.doc",
+          "color": "#E8F4FD"
+        },
+        "phase_metadata": {
+          "phase_id": "1",
+          "phase_purpose": "Capture user intent from command line arguments and environment variables."
+        },
+        "children": [
+          {
+            "id": "step-1.1",
+            "type": "step",
+            "label": "Entry Point",
+            "description": "Main execution entry point for the CLI",
+            "visual_hint": {
+              "icon": "play.fill",
+              "color": "#4A90D9",
+              "badge": "Entry Point"
+            },
+            "step_metadata": {
+              "step_id": "1.1",
+              "source_nodes": [
+                "shell"
+              ],
+              "target_nodes": [
+                "step-1.2"
+              ],
+              "process_script": "httpie/__main__.py"
+            },
+            "connections": [
+              {
+                "target_id": "step-1.2",
+                "label": "calls main",
+                "direction": "outgoing"
+              }
+            ],
+            "children": [
+              {
+                "id": "file-main-py",
+                "type": "file",
+                "label": "__main__.py",
+                "description": "The package entry point",
+                "file_metadata": {
+                  "file_path": "httpie/__main__.py",
+                  "language": "python",
+                  "github_url": "https://github.com/httpie/cli/blob/master/httpie/__main__.py",
+                  "line_count": 15
+                },
+                "children": [
+                  {
+                    "id": "func-main-entry",
+                    "type": "function",
+                    "label": "main()",
+                    "description": "Invokes the core main function",
+                    "function_metadata": {
+                      "function_name": "main",
+                      "file_path": "httpie/__main__.py",
+                      "line_start": 1,
+                      "line_end": 12,
+                      "github_url": "https://github.com/httpie/cli/blob/master/httpie/__main__.py#L1-L12",
+                      "signature": "def main():"
+                    },
+                    "children": [
+                      {
+                        "id": "code-main-entry",
+                        "type": "code_block",
+                        "label": "Main Entry Code",
+                        "description": "Execution start",
+                        "code_metadata": {
+                          "code": "def main():\n    from httpie.core import main\n    import sys\n    sys.exit(main())",
+                          "language": "python",
+                          "file_path": "httpie/__main__.py",
+                          "line_start": 7,
+                          "line_end": 10,
+                          "github_url": "https://github.com/httpie/cli/blob/master/httpie/__main__.py#L7-L10"
+                        },
+                        "children": [],
+                        "visual_hint": {
+                          "icon": "chevron.left.forwardslash.chevron.right",
+                          "color": "#3776AB"
+                        }
+                      }
+                    ],
+                    "visual_hint": {
+                      "icon": "function",
+                      "color": "#3776AB"
+                    }
+                  }
+                ],
+                "visual_hint": {
+                  "icon": "doc.text",
+                  "color": "#6E7681"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "phase-2",
+        "type": "phase",
+        "label": "Cleaning & Normalization",
+        "description": "Argument parsing and request preparation",
+        "visual_hint": {
+          "icon": "wand.and.stars",
+          "color": "#FFF3E0"
+        },
+        "phase_metadata": {
+          "phase_id": "2",
+          "phase_purpose": "Convert raw CLI strings into structured Request objects."
+        },
+        "children": [
+          {
+            "id": "step-2.1",
+            "type": "step",
+            "label": "Parse Arguments",
+            "description": "Translates sys.argv into a Namespace object",
+            "visual_hint": {
+              "icon": "list.bullet.rectangle",
+              "color": "#FF9800"
+            },
+            "step_metadata": {
+              "step_id": "2.1",
+              "source_nodes": [
+                "step-1.1"
+              ],
+              "target_nodes": [
+                "step-4.1"
+              ],
+              "process_script": "httpie/core.py"
+            },
+            "children": [
+              {
+                "id": "file-core-py",
+                "type": "file",
+                "label": "core.py",
+                "description": "Core logic coordinator",
+                "file_metadata": {
+                  "file_path": "httpie/core.py",
+                  "language": "python",
+                  "github_url": "https://github.com/httpie/cli/blob/master/httpie/core.py",
+                  "line_count": 250
+                },
+                "children": [
+                  {
+                    "id": "func-program-main",
+                    "type": "function",
+                    "label": "program()",
+                    "description": "Main logic flow controller",
+                    "function_metadata": {
+                      "function_name": "program",
+                      "file_path": "httpie/core.py",
+                      "line_start": 70,
+                      "line_end": 110,
+                      "github_url": "https://github.com/httpie/cli/blob/master/httpie/core.py#L70-L110",
+                      "signature": "def program(args: List[str], env: Environment) -> ExitStatus:"
+                    },
+                    "children": [
+                      {
+                        "id": "code-program-logic",
+                        "type": "code_block",
+                        "label": "Program Logic",
+                        "description": "Orchestrating the request-response cycle",
+                        "code_metadata": {
+                          "code": "def program(args: List[str], env: Environment) -> ExitStatus:\n    parser = HTTPieArgumentParser()\n    parsed_args = parser.parse_args(args=args, env=env)\n    \n    # ... initialization ...\n    \n    response_messages = collect_messages(parsed_args, env)\n    for message in response_messages:\n        write_message(message, parsed_args, env)\n    \n    return ExitStatus.SUCCESS",
+                          "language": "python",
+                          "file_path": "httpie/core.py",
+                          "line_start": 70,
+                          "line_end": 100,
+                          "github_url": "https://github.com/httpie/cli/blob/master/httpie/core.py#L70-L100"
+                        },
+                        "children": [],
+                        "visual_hint": {
+                          "icon": "chevron.left.forwardslash.chevron.right",
+                          "color": "#3776AB"
+                        }
+                      }
+                    ],
+                    "visual_hint": {
+                      "icon": "function",
+                      "color": "#3776AB"
+                    }
+                  }
+                ],
+                "visual_hint": {
+                  "icon": "doc.text",
+                  "color": "#6E7681"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "phase-4",
+        "type": "phase",
+        "label": "Modeling / Computation",
+        "description": "Executing the HTTP request",
+        "visual_hint": {
+          "icon": "gearshape",
+          "color": "#E8F5E9"
+        },
+        "phase_metadata": {
+          "phase_id": "4",
+          "phase_purpose": "Perform the actual network I/O using the Requests library."
+        },
+        "children": [
+          {
+            "id": "step-4.1",
+            "type": "step",
+            "label": "Collect Messages",
+            "description": "Sends requests and yields responses",
+            "visual_hint": {
+              "icon": "network",
+              "color": "#4CAF50"
+            },
+            "step_metadata": {
+              "step_id": "4.1",
+              "source_nodes": [
+                "step-2.1"
+              ],
+              "target_nodes": [
+                "step-6.1"
+              ],
+              "process_script": "httpie/client.py"
+            },
+            "children": [
+              {
+                "id": "file-client-py",
+                "type": "file",
+                "label": "client.py",
+                "description": "HTTP client wrapper",
+                "file_metadata": {
+                  "file_path": "httpie/client.py",
+                  "language": "python",
+                  "github_url": "https://github.com/httpie/cli/blob/master/httpie/client.py",
+                  "line_count": 120
+                },
+                "children": [
+                  {
+                    "id": "func-collect-messages",
+                    "type": "function",
+                    "label": "collect_messages()",
+                    "description": "Generator for HTTP messages",
+                    "function_metadata": {
+                      "function_name": "collect_messages",
+                      "file_path": "httpie/client.py",
+                      "line_start": 30,
+                      "line_end": 60,
+                      "github_url": "https://github.com/httpie/cli/blob/master/httpie/client.py#L30-L60",
+                      "signature": "def collect_messages(args, env):"
+                    },
+                    "children": [
+                      {
+                        "id": "code-collect-messages",
+                        "type": "code_block",
+                        "label": "Request Execution",
+                        "description": "Using requests.Session to send data",
+                        "code_metadata": {
+                          "code": "def collect_messages(args, env):\n    session = get_requests_session(args)\n    kwargs = get_request_kwargs(args)\n    \n    response = session.request(\n        method=args.method.lower(),\n        url=args.url,\n        **kwargs\n    )\n    yield response",
+                          "language": "python",
+                          "file_path": "httpie/client.py",
+                          "line_start": 45,
+                          "line_end": 55,
+                          "github_url": "https://github.com/httpie/cli/blob/master/httpie/client.py#L45-L55"
+                        },
+                        "children": [],
+                        "visual_hint": {
+                          "icon": "chevron.left.forwardslash.chevron.right",
+                          "color": "#3776AB"
+                        }
+                      }
+                    ],
+                    "visual_hint": {
+                      "icon": "function",
+                      "color": "#3776AB"
+                    }
+                  }
+                ],
+                "visual_hint": {
+                  "icon": "doc.text",
+                  "color": "#6E7681"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "phase-6",
+        "type": "phase",
+        "label": "Reporting / Export",
+        "description": "Formatting and outputting the response",
+        "visual_hint": {
+          "icon": "doc.text",
+          "color": "#F3E5F5"
+        },
+        "phase_metadata": {
+          "phase_id": "6",
+          "phase_purpose": "Pretty-print and colorize the HTTP response for the user."
+        },
+        "children": [
+          {
+            "id": "step-6.1",
+            "type": "step",
+            "label": "Write Message",
+            "description": "Formats and prints the response to stdout",
+            "visual_hint": {
+              "icon": "printer",
+              "color": "#9C27B0"
+            },
+            "step_metadata": {
+              "step_id": "6.1",
+              "source_nodes": [
+                "step-4.1"
+              ],
+              "target_nodes": [
+                "stdout"
+              ],
+              "process_script": "httpie/output/writer.py"
+            },
+            "children": [
+              {
+                "id": "file-writer-py",
+                "type": "file",
+                "label": "writer.py",
+                "description": "Output stream management",
+                "file_metadata": {
+                  "file_path": "httpie/output/writer.py",
+                  "language": "python",
+                  "github_url": "https://github.com/httpie/cli/blob/master/httpie/output/writer.py",
+                  "line_count": 80
+                },
+                "children": [
+                  {
+                    "id": "func-write-message",
+                    "type": "function",
+                    "label": "write_message()",
+                    "description": "Writes a single message to the output stream",
+                    "function_metadata": {
+                      "function_name": "write_message",
+                      "file_path": "httpie/output/writer.py",
+                      "line_start": 20,
+                      "line_end": 45,
+                      "github_url": "https://github.com/httpie/cli/blob/master/httpie/output/writer.py#L20-L45",
+                      "signature": "def write_message(message, args, env):"
+                    },
+                    "children": [
+                      {
+                        "id": "code-write-logic",
+                        "type": "code_block",
+                        "label": "Output Logic",
+                        "description": "Final output to terminal",
+                        "code_metadata": {
+                          "code": "def write_message(message, args, env):\n    renderer = get_renderer(args, env)\n    for chunk in renderer.render(message):\n        env.stdout.write(chunk)\n        if args.stream:\n            env.stdout.flush()",
+                          "language": "python",
+                          "file_path": "httpie/output/writer.py",
+                          "line_start": 30,
+                          "line_end": 36,
+                          "github_url": "https://github.com/httpie/cli/blob/master/httpie/output/writer.py#L30-L36"
+                        },
+                        "children": [],
+                        "visual_hint": {
+                          "icon": "chevron.left.forwardslash.chevron.right",
+                          "color": "#3776AB"
+                        }
+                      }
+                    ],
+                    "visual_hint": {
+                      "icon": "function",
+                      "color": "#3776AB"
+                    }
+                  }
+                ],
+                "visual_hint": {
+                  "icon": "doc.text",
+                  "color": "#6E7681"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

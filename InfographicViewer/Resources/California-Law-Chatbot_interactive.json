@@ -1,0 +1,354 @@
+{
+  "version": "2.0",
+  "schema": "interactive-infographic",
+  "repo_url": "https://github.com/ArjunDivecha/California-Law-Chatbot",
+  "repo_name": "California-Law-Chatbot",
+  "repo_summary": "A RAG-based chatbot designed to answer questions about California law using Pinecone for vector storage and OpenAI for language modeling.",
+  "pipeline_overview": "The system ingests legal PDF documents, processes them into chunks, generates embeddings, and provides a conversational interface for querying the knowledge base.",
+  "generated_at": "2024-05-22T10:00:00Z",
+  "root": {
+    "id": "root",
+    "type": "repo",
+    "label": "California Law Chatbot",
+    "description": "RAG-powered legal assistant for California statutes",
+    "visual_hint": {
+      "icon": "scale.3d",
+      "color": "#1F2937"
+    },
+    "children": [
+      {
+        "id": "phase-1",
+        "type": "phase",
+        "label": "Ingestion & Processing",
+        "description": "Loading PDF documents and preparing text for vectorization",
+        "visual_hint": {
+          "icon": "arrow.down.doc.fill",
+          "color": "#E8F4FD"
+        },
+        "phase_metadata": {
+          "phase_id": "1",
+          "phase_purpose": "Convert raw legal PDFs into searchable text chunks"
+        },
+        "children": [
+          {
+            "id": "step-1.1",
+            "type": "step",
+            "label": "Document Loading",
+            "description": "Reading PDF files from the data directory",
+            "visual_hint": {
+              "icon": "doc.text.magnifyingglass",
+              "color": "#4A90D9"
+            },
+            "step_metadata": {
+              "step_id": "1.1",
+              "source_nodes": [
+                "data/*.pdf"
+              ],
+              "target_nodes": [
+                "raw_text"
+              ],
+              "process_script": "ingest.py",
+              "notes": "Uses DirectoryLoader and PyPDFLoader"
+            },
+            "connections": [
+              {
+                "target_id": "step-1.2",
+                "label": "passes text",
+                "direction": "outgoing"
+              }
+            ],
+            "children": [
+              {
+                "id": "file-ingest-py",
+                "type": "file",
+                "label": "ingest.py",
+                "description": "Main ingestion script",
+                "file_metadata": {
+                  "file_path": "ingest.py",
+                  "language": "python",
+                  "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/ingest.py",
+                  "line_count": 45
+                },
+                "children": [
+                  {
+                    "id": "func-load-docs",
+                    "type": "function",
+                    "label": "Document Loading Logic",
+                    "description": "Initializes the directory loader for PDFs",
+                    "function_metadata": {
+                      "function_name": "loader",
+                      "file_path": "ingest.py",
+                      "line_start": 15,
+                      "line_end": 20,
+                      "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/ingest.py#L15-L20",
+                      "signature": "loader = DirectoryLoader(DATA_PATH, glob='*.pdf', loader_cls=PyPDFLoader)",
+                      "docstring": "Loads all PDF files from the specified data path."
+                    },
+                    "children": [
+                      {
+                        "id": "code-ingest-load",
+                        "type": "code_block",
+                        "label": "Loader Implementation",
+                        "description": "Code to load and split documents",
+                        "code_metadata": {
+                          "code": "loader = DirectoryLoader(DATA_PATH,\n                        glob='*.pdf',\n                        loader_cls=PyPDFLoader)\n\ndocuments = loader.load()\ntext_splitter = RecursiveCharacterTextSplitter(chunk_size=500,\n                                               chunk_overlap=50)\ntexts = text_splitter.split_documents(documents)",
+                          "language": "python",
+                          "file_path": "ingest.py",
+                          "line_start": 15,
+                          "line_end": 23,
+                          "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/ingest.py#L15-L23",
+                          "annotations": [
+                            {
+                              "line": 1,
+                              "comment": "Scans directory for PDF files"
+                            },
+                            {
+                              "line": 6,
+                              "comment": "Splits text into 500-character chunks for embedding"
+                            }
+                          ]
+                        },
+                        "children": [],
+                        "visual_hint": {
+                          "icon": "chevron.left.forwardslash.chevron.right",
+                          "color": "#3776AB"
+                        }
+                      }
+                    ],
+                    "visual_hint": {
+                      "icon": "function",
+                      "color": "#3776AB"
+                    }
+                  }
+                ],
+                "visual_hint": {
+                  "icon": "doc.text",
+                  "color": "#6E7681"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "phase-2",
+        "type": "phase",
+        "label": "Feature Engineering",
+        "description": "Generating embeddings and populating the vector database",
+        "visual_hint": {
+          "icon": "cpu",
+          "color": "#E8F5E9"
+        },
+        "phase_metadata": {
+          "phase_id": "2",
+          "phase_purpose": "Transform text into high-dimensional vectors for semantic search"
+        },
+        "children": [
+          {
+            "id": "step-2.1",
+            "type": "step",
+            "label": "Vectorization",
+            "description": "Creating Pinecone index from text chunks",
+            "visual_hint": {
+              "icon": "square.stack.3d.up.fill",
+              "color": "#4CAF50"
+            },
+            "step_metadata": {
+              "step_id": "2.1",
+              "source_nodes": [
+                "texts"
+              ],
+              "target_nodes": [
+                "pinecone_index"
+              ],
+              "process_script": "ingest.py",
+              "notes": "Uses OpenAIEmbeddings"
+            },
+            "connections": [
+              {
+                "target_id": "step-3.1",
+                "label": "queries index",
+                "direction": "outgoing"
+              }
+            ],
+            "children": [
+              {
+                "id": "file-ingest-py-vec",
+                "type": "file",
+                "label": "ingest.py",
+                "description": "Embedding generation logic",
+                "file_metadata": {
+                  "file_path": "ingest.py",
+                  "language": "python",
+                  "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/ingest.py",
+                  "line_count": 45
+                },
+                "children": [
+                  {
+                    "id": "func-create-vectorstore",
+                    "type": "function",
+                    "label": "Vector Store Creation",
+                    "description": "Initializes Pinecone and uploads embeddings",
+                    "function_metadata": {
+                      "function_name": "Pinecone.from_documents",
+                      "file_path": "ingest.py",
+                      "line_start": 30,
+                      "line_end": 35,
+                      "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/ingest.py#L30-L35",
+                      "signature": "docsearch = Pinecone.from_documents(texts, embeddings, index_name=index_name)",
+                      "docstring": "Creates a Pinecone vector store from the provided documents."
+                    },
+                    "children": [
+                      {
+                        "id": "code-vector-init",
+                        "type": "code_block",
+                        "label": "Pinecone Initialization",
+                        "description": "Code to push vectors to the cloud",
+                        "code_metadata": {
+                          "code": "embeddings = OpenAIEmbeddings()\n\npinecone.init(\n    api_key=PINECONE_API_KEY,\n    environment=PINECONE_API_ENV\n)\n\nindex_name = \"california-law\"\ndocsearch = Pinecone.from_documents(texts, embeddings, index_name=index_name)",
+                          "language": "python",
+                          "file_path": "ingest.py",
+                          "line_start": 25,
+                          "line_end": 35,
+                          "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/ingest.py#L25-L35",
+                          "annotations": [
+                            {
+                              "line": 1,
+                              "comment": "Uses OpenAI's text-embedding-ada-002"
+                            }
+                          ]
+                        },
+                        "children": [],
+                        "visual_hint": {
+                          "icon": "chevron.left.forwardslash.chevron.right",
+                          "color": "#3776AB"
+                        }
+                      }
+                    ],
+                    "visual_hint": {
+                      "icon": "function",
+                      "color": "#3776AB"
+                    }
+                  }
+                ],
+                "visual_hint": {
+                  "icon": "doc.text",
+                  "color": "#6E7681"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "phase-3",
+        "type": "phase",
+        "label": "Modeling & Inference",
+        "description": "Retrieval-Augmented Generation (RAG) and LLM interaction",
+        "visual_hint": {
+          "icon": "wand.and.stars",
+          "color": "#FFF3E0"
+        },
+        "phase_metadata": {
+          "phase_id": "3",
+          "phase_purpose": "Generate answers based on retrieved legal context"
+        },
+        "children": [
+          {
+            "id": "step-3.1",
+            "type": "step",
+            "label": "RAG Chain",
+            "description": "Setting up the Conversational Retrieval Chain",
+            "visual_hint": {
+              "icon": "link",
+              "color": "#FF9800"
+            },
+            "step_metadata": {
+              "step_id": "3.1",
+              "source_nodes": [
+                "user_query",
+                "pinecone_index"
+              ],
+              "target_nodes": [
+                "llm_response"
+              ],
+              "process_script": "app.py",
+              "notes": "Uses ChatOpenAI (GPT-3.5-turbo)"
+            },
+            "connections": [],
+            "children": [
+              {
+                "id": "file-app-py",
+                "type": "file",
+                "label": "app.py",
+                "description": "Streamlit application and RAG logic",
+                "file_metadata": {
+                  "file_path": "app.py",
+                  "language": "python",
+                  "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/app.py",
+                  "line_count": 60
+                },
+                "children": [
+                  {
+                    "id": "func-qa-chain",
+                    "type": "function",
+                    "label": "QA Chain Setup",
+                    "description": "Configures the LangChain retrieval process",
+                    "function_metadata": {
+                      "function_name": "ConversationalRetrievalChain",
+                      "file_path": "app.py",
+                      "line_start": 40,
+                      "line_end": 48,
+                      "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/app.py#L40-L48",
+                      "signature": "qa = ConversationalRetrievalChain.from_llm(OpenAI(), docsearch.as_retriever())",
+                      "docstring": "Creates a chain for chatting with the document index."
+                    },
+                    "children": [
+                      {
+                        "id": "code-rag-logic",
+                        "type": "code_block",
+                        "label": "RAG Implementation",
+                        "description": "Core logic for querying the LLM with context",
+                        "code_metadata": {
+                          "code": "llm = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)\nretriever = docsearch.as_retriever(search_kwargs={'k': 3})\n\nqa_chain = ConversationalRetrievalChain.from_llm(\n    llm=llm,\n    retriever=retriever,\n    return_source_documents=True\n)\n\nresult = qa_chain({\"question\": query, \"chat_history\": chat_history})",
+                          "language": "python",
+                          "file_path": "app.py",
+                          "line_start": 40,
+                          "line_end": 50,
+                          "github_url": "https://github.com/ArjunDivecha/California-Law-Chatbot/blob/main/app.py#L40-L50",
+                          "annotations": [
+                            {
+                              "line": 2,
+                              "comment": "Retrieves top 3 most relevant document chunks"
+                            },
+                            {
+                              "line": 10,
+                              "comment": "Executes the query with conversation history"
+                            }
+                          ]
+                        },
+                        "children": [],
+                        "visual_hint": {
+                          "icon": "chevron.left.forwardslash.chevron.right",
+                          "color": "#3776AB"
+                        }
+                      }
+                    ],
+                    "visual_hint": {
+                      "icon": "function",
+                      "color": "#3776AB"
+                    }
+                  }
+                ],
+                "visual_hint": {
+                  "icon": "doc.text",
+                  "color": "#6E7681"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
