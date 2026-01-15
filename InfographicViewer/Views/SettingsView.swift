@@ -75,7 +75,7 @@ struct SettingsView: View {
                         
                         Text("1. Enter a GitHub repository URL")
                         Text("2. The app sends the URL to our Railway backend")
-                        Text("3. Backend calls Claude Opus 4.5 to analyze the repo")
+                        Text("3. Backend calls GLM-4.7 via Cerebras to analyze the repo")
                         Text("4. Returns a validated hierarchical JSON")
                         Text("5. Navigate the infographic by tapping to drill down")
                     }
