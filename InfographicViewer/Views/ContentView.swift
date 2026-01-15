@@ -17,6 +17,7 @@ struct ContentView: View {
                 
                 VStack(spacing: Spacing.lg) {
                     Spacer()
+                        .frame(maxHeight: 60)
                     
                     // Icon
                     Image(systemName: "link.badge.plus")
