@@ -199,11 +199,19 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
-            TextField("https://github.com/owner/repo", text: $githubURL)
-                .textFieldStyle(.roundedBorder)
-                .autocapitalization(.none)
-                .disableAutocorrection(true)
-                .padding(.horizontal)
+            HStack {
+                TextField("https://github.com/owner/repo", text: $githubURL)
+                    .textFieldStyle(.roundedBorder)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                
+                Button(action: openGitHub) {
+                    Image(systemName: "arrow.up.right.square")
+                        .font(.title2)
+                        .foregroundColor(.accentPrimary)
+                }
+            }
+            .padding(.horizontal)
             
             Button(action: generateFromGitHub) {
                 HStack(spacing: 8) {
@@ -377,6 +385,12 @@ struct ContentView: View {
                     isLoading = false
                 }
             }
+        }
+    }
+    
+    private func openGitHub() {
+        if let url = URL(string: "https://github.com") {
+            UIApplication.shared.open(url)
         }
     }
 }
