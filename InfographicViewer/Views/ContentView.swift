@@ -80,19 +80,9 @@ struct ContentView: View {
                     
                     Spacer()
                     
-                    // Loaded infographic card
-                    if let infographic = infographic {
-                        loadedInfoCard(infographic)
-                    }
-                    
                     // Status/Error display
                     if let error = errorMessage {
                         errorBanner(error)
-                    }
-                    
-                    // View button when infographic is loaded
-                    if infographic != nil {
-                        viewInfographicButton
                     }
                 }
             }
@@ -208,6 +198,7 @@ struct ContentView: View {
                 await MainActor.run {
                     infographic = generated
                     isLoading = false
+                    showInfographic = true  // Automatically show the infographic
                 }
             } catch {
                 await MainActor.run {
