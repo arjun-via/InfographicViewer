@@ -48,25 +48,12 @@ struct ContentView: View {
                     .padding(.top, Spacing.sm)
                     
                     // URL input field
-                    ZStack(alignment: .leading) {
-                        if githubURL.isEmpty {
-                            Text("https://github.com/owner/repo")
-                                .foregroundColor(.gray.opacity(0.5))
-                                .padding(.leading, 8)
-                        }
-                        TextField("", text: $githubURL)
-                            .autocapitalization(.none)
-                            .disableAutocorrection(true)
-                            .focused($isTextFieldFocused)
-                    }
-                    .padding(12)
-                    .background(Color.bgSecondary)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
-                    .padding(.horizontal)
+                    TextField("", text: $githubURL, prompt: Text("https://github.com/owner/repo").foregroundColor(.gray.opacity(0.4)))
+                        .textFieldStyle(.roundedBorder)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .focused($isTextFieldFocused)
+                        .padding(.horizontal)
                     
                     // Generate button
                     Button(action: generateFromGitHub) {
