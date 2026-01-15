@@ -21,8 +21,7 @@ struct ContentView: View {
                     // Tab selector
                     Picker("Mode", selection: $selectedTab) {
                         Text("Samples").tag(0)
-                        Text("From File").tag(1)
-                        Text("From GitHub").tag(2)
+                        Text("From GitHub").tag(1)
                     }
                     .pickerStyle(.segmented)
                     .padding()
@@ -32,8 +31,6 @@ struct ContentView: View {
                     case 0:
                         samplesView
                     case 1:
-                        filePickerView
-                    case 2:
                         githubInputView
                     default:
                         samplesView
