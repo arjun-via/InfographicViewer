@@ -19,10 +19,11 @@ struct ContentView: View {
                     Spacer()
                         .frame(maxHeight: 60)
                     
-                    // Icon
-                    Image(systemName: "link.badge.plus")
-                        .font(.system(size: 64))
-                        .foregroundColor(.textSecondary)
+                    // VIA Logo
+                    Image("VIALogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 100)
                     
                     // Title
                     Text("Generate Infographic")
