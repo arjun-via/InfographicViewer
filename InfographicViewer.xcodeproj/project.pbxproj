@@ -22,6 +22,7 @@
 /* Begin PBXFileReference section */
 		06232D577B92460C9836DD5C /* InfographicViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InfographicViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		09157D4E4B8E4F0C9BD4ADB7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		28BD12192F2C2CDA00C1933B /* InfographicViewer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = InfographicViewer.xcodeproj; sourceTree = SOURCE_ROOT; };
 		63E7958983A1427085DED070 /* InfographicGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfographicGenerator.swift; sourceTree = "<group>"; };
 		887E10FF8D224A2AB7706963 /* cli_interactive.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = cli_interactive.json; sourceTree = "<group>"; };
 		8E6D07055D8845B383EDFB2C /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
@@ -60,6 +61,11 @@
 			path = Theme;
 			sourceTree = "<group>";
 		};
+		28FC70CF2F370EE8007BEA19 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4442E49C48A241649B5B09B9 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -71,6 +77,7 @@
 		5733B326D2624F29A01B1B9B = {
 			isa = PBXGroup;
 			children = (
+				28BD12192F2C2CDA00C1933B /* InfographicViewer.xcodeproj */,
 				7C0CF1AE239941059F3AC43D /* InfographicViewer */,
 				8E1F9BF34F0F4B4AA98C0920 /* Products */,
 			);
@@ -172,12 +179,31 @@
 			mainGroup = 5733B326D2624F29A01B1B9B;
 			productRefGroup = 8E1F9BF34F0F4B4AA98C0920 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 28FC70CF2F370EE8007BEA19 /* Products */;
+					ProjectRef = 28BD12192F2C2CDA00C1933B /* InfographicViewer.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D97B9302536B4F17A24EBD16 /* InfographicViewer */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AE02E5D4693149288A920B4F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ASSETS0001BUILDFILE00001 /* Assets.xcassets in Resources */,
+				4DFB686B39604DCBB6A4B6EA /* California-Law-Chatbot_interactive.json in Resources */,
+				0DB2CBAC312946498F68A099 /* cli_interactive.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		A7E0C2D5B1F84D2B9C6A1E3F /* Copy .env (Debug) */ = {
@@ -198,19 +224,6 @@
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXResourcesBuildPhase section */
-		AE02E5D4693149288A920B4F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				ASSETS0001BUILDFILE00001 /* Assets.xcassets in Resources */,
-				4DFB686B39604DCBB6A4B6EA /* California-Law-Chatbot_interactive.json in Resources */,
-				0DB2CBAC312946498F68A099 /* cli_interactive.json in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9BE1EA77EB6741BA8452C08F /* Sources */ = {

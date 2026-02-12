@@ -9,8 +9,8 @@ This is a standalone test app for validating the mobile visualization approach d
 - **Load Sample Infographics** - Test with pre-generated JSON files
 - **Load from File** - Import your own JSON files
 - **Generate from GitHub** - Enter a GitHub URL to generate an infographic
-  - Uses Railway backend with Claude Opus 4.5
-  - Shared infrastructure with Spoken Reality app
+  - Uses OpenRouter API with Gemini 2.0 Flash
+  - No backend needed - direct API calls
 - **Pinch-to-Zoom** - (Coming soon) Smooth zoom like Working Copy
 - **Search** - (Coming soon) Find files and functions in the visualization
 
@@ -43,25 +43,25 @@ REPO
 7. Add JSON files from `Resources/` to the project
 8. Build and run!
 
-### Step 2: Backend Configuration
+### Step 2: API Key Configuration
 
-The app uses the shared Railway backend from Spoken Reality. No API key configuration needed in the app - it's handled server-side.
+1. Get an API key from [OpenRouter](https://openrouter.ai/keys)
+2. In the app, tap the ⚙️ Settings button
+3. Enter your OpenRouter API key
+4. Tap "Test Connection" to verify
 
-**Backend URL**: `https://spoken-reality-production-9cd5.up.railway.app/api/infographic/generate`
-
-**Cost**: ~$2-5 per repository analysis (using Claude Opus 4.5)
+**Cost**: ~$0.10 per repository analysis (using Gemini 2.0 Flash)
 
 ## How GitHub Generation Works
 
-The app calls the Railway backend (same as Spoken Reality):
+The app calls OpenRouter API directly (no backend needed):
 
 1. You enter a GitHub URL
-2. App sends the URL to Railway backend
-3. Backend calls Claude Opus 4.5 via OpenRouter
-4. Backend validates and enhances the JSON response
-5. Returns hierarchical JSON for visualization
+2. App sends the URL to OpenRouter with Gemini 2.0 Flash
+3. Gemini fetches and analyzes the repository structure
+4. Returns hierarchical JSON for interactive visualization
 
-This uses the same logic as [repo2interactive.py](../Spoken%20Reality/SpokenRealityApp/Tools/repo2interactive/), ported to TypeScript for the backend.
+This approach is simpler and faster than the backend version, though it requires an API key in the app.
 
 ### JSON Schema
 
@@ -91,7 +91,8 @@ InfographicViewer/
 │   └── InfographicViewerApp.swift    # App entry point
 ├── Views/
 │   ├── ContentView.swift              # Main UI with tabs
-│   └── InfographicView.swift          # Nested box visualization
+│   ├── InfographicView.swift          # Nested box visualization
+│   └── SettingsView.swift             # API key configuration
 ├── Models/
 │   └── InfographicModels.swift        # Data models (from Spoken Reality)
 ├── Services/
