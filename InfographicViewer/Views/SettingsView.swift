@@ -23,7 +23,7 @@ struct SettingsView: View {
                                 .foregroundColor(.accentPrimary)
                             Text("Railway Backend")
                                 .font(.headline)
-                            .foregroundColor(.textPrimary)
+                                .foregroundColor(.textPrimary)
                         }
                         
                         Text("Infographics are generated server-side using GLM-4.7 via Cerebras")
@@ -142,7 +142,7 @@ struct SettingsView: View {
                                     testStatus = .failed("Backend API key not configured")
                                 }
                             } else {
-                            testStatus = .success
+                                testStatus = .success
                             }
                         } else {
                             testStatus = .failed("HTTP \(httpResponse.statusCode)")
